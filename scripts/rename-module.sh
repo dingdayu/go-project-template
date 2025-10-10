@@ -8,6 +8,7 @@ if [[ $# -lt 1 ]]; then
 fi
 
 NEW_MOD="$1"
+NEW_APP_NAME="$(basename "$NEW_MOD")"
 
 # 自动推断 OLD_MOD：从 go.mod 第一行读取
 if [[ $# -ge 2 ]]; then
@@ -22,6 +23,7 @@ fi
 
 echo "OLD_MOD: $OLD_MOD"
 echo "NEW_MOD: $NEW_MOD"
+echo "NEW_APP_NAME: $NEW_APP_NAME"
 
 # 1) 修改 go.mod 的 module
 go mod edit -module "$NEW_MOD"
@@ -37,6 +39,15 @@ if [[ -n "$FILES" ]]; then
   else
     # BSD sed (macOS)
     sed -i '' "s#${OLD_MOD}#${NEW_MOD}#g" $FILES
+  fi
+fi
+
+# 修改 Makefile 中的 APP_NAME 变量（如果存在）
+if grep -q '^APP_NAME\s*=' Makefile 2>/dev/null; then
+  if sed --version >/dev/null 2>&1; then
+    sed -i "s#^APP_NAME\s*=.*#APP_NAME = ${NEW_APP_NAME}#g" Makefile
+  else
+    sed -i '' "s#^APP_NAME\s*=.*#APP_NAME = ${NEW_APP_NAME}#g" Makefile
   fi
 fi
 

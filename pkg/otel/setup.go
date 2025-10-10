@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"runtime/debug"
-	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -174,8 +174,7 @@ func GetServiceName() string {
 		return serviceName
 	}
 	if bi, ok := debug.ReadBuildInfo(); ok && bi != nil {
-		parts := strings.Split(bi.Main.Path, "/")
-		return parts[len(parts)-1] // 返回最后一个部分作为模块名
+		return path.Base(bi.Main.Path)
 	}
 	return ""
 }

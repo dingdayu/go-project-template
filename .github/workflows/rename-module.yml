@@ -48,6 +48,7 @@ jobs:
           set -euo pipefail
           OLD_MOD='${{ steps.mod.outputs.old }}'
           NEW_MOD='${{ steps.mod.outputs.new }}'
+          NEW_APP_NAME="$(basename "$NEW_MOD")"
 
           if [ "$OLD_MOD" = "$NEW_MOD" ]; then
             echo "No change."; exit 0
@@ -61,6 +62,16 @@ jobs:
               sed -i "s#${OLD_MOD}#${NEW_MOD}#g" $FILES
             else
               sed -i '' "s#${OLD_MOD}#${NEW_MOD}#g" $FILES
+            fi
+          fi
+
+          echo "NEW_APP_NAME: $NEW_APP_NAME"
+          # Update APP_NAME in Makefile if it exists
+          if grep -q '^APP_NAME\s*=' Makefile 2>/dev/null; then
+            if sed --version >/dev/null 2>&1; then
+              sed -i "s#^APP_NAME\s*=.*#APP_NAME = ${NEW_APP_NAME}#g" Makefile
+            else
+              sed -i '' "s#^APP_NAME\s*=.*#APP_NAME = ${NEW_APP_NAME}#g" Makefile
             fi
           fi
 

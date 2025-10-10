@@ -18,6 +18,10 @@ if (-not $OldMod) {
 Write-Host "OLD_MOD: $OldMod"
 Write-Host "NEW_MOD: $NewMod"
 
+# 从 NEW_MOD 计算 NEW_APP_NAME（取路径最后一段）
+$NewAppName = ($NewMod -split '/')[ -1 ]
+Write-Host "NEW_APP_NAME: $NewAppName"
+
 # 1) go.mod
 go mod edit -module $NewMod
 
@@ -27,6 +31,15 @@ $files = $files.ToString().Split([Environment]::NewLine, [System.StringSplitOpti
 
 foreach ($f in $files) {
   (Get-Content $f) -replace [regex]::Escape($OldMod), $NewMod | Set-Content $f
+}
+
+# 修改 Makefile 中的 APP_NAME 变量（如果存在）
+if (Test-Path "Makefile") {
+  $makeContent = Get-Content "Makefile" -Raw
+  if ($makeContent -match '(?m)^\s*APP_NAME\s*=') {
+    $updated = [System.Text.RegularExpressions.Regex]::Replace($makeContent, '(?m)^\s*APP_NAME\s*=.*$', "APP_NAME = $NewAppName")
+    Set-Content -Path "Makefile" -Value $updated
+  }
 }
 
 # 3) 整理依赖

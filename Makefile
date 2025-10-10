@@ -8,7 +8,7 @@ GOGET=$(GOCMD) get
 GO_HTTP_PORT=8080
 
 # 二进制文件名
-APP_NAME=app
+APP_NAME = app
 
 VERSION := $(shell git describe --tags --always --long --dirty 2>/dev/null || echo "v0.0.0")
 COMMIT_SHA := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
