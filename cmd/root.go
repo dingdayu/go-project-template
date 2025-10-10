@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dingdayu/singbox-adapter/model/entity"
-	"github.com/dingdayu/singbox-adapter/pkg/config"
-	"github.com/dingdayu/singbox-adapter/pkg/logger"
+	"github.com/dingdayu/go-project-template/model/entity"
+	"github.com/dingdayu/go-project-template/pkg/config"
+	"github.com/dingdayu/go-project-template/pkg/logger"
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/cobra"

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/dingdayu/singbox-adapter/cmd"
+	"github.com/dingdayu/go-project-template/cmd"
 
 	_ "github.com/joho/godotenv/autoload"
 )

@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/dingdayu/singbox-adapter/api/router"
-	"github.com/dingdayu/singbox-adapter/pkg/otel"
+	"github.com/dingdayu/go-project-template/api/router"
+	"github.com/dingdayu/go-project-template/pkg/otel"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )

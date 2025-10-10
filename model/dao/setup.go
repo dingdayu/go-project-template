@@ -14,8 +14,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/dingdayu/singbox-adapter/pkg/logger"
-	pkgOtel "github.com/dingdayu/singbox-adapter/pkg/otel"
+	"github.com/dingdayu/go-project-template/pkg/logger"
+	pkgOtel "github.com/dingdayu/go-project-template/pkg/otel"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/otel"
 	"gorm.io/driver/mysql"
@@ -30,7 +30,7 @@ var (
 	once sync.Once
 	db   *gorm.DB
 
-	tracer = otel.Tracer("github.com/dingdayu/singbox-adapter/model/dao")
+	tracer = otel.Tracer("github.com/dingdayu/go-project-template/model/dao")
 )
 
 func Init() {

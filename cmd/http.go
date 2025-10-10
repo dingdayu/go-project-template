@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/dingdayu/singbox-adapter/api"
-	"github.com/dingdayu/singbox-adapter/model/dao"
+	"github.com/dingdayu/go-project-template/api"
+	"github.com/dingdayu/go-project-template/model/dao"
 	"github.com/spf13/cobra"
 )
 

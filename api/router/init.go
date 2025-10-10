@@ -3,11 +3,11 @@ package router
 import (
 	"time"
 
-	"github.com/dingdayu/singbox-adapter/api/controller"
-	"github.com/dingdayu/singbox-adapter/api/middleware"
+	"github.com/dingdayu/go-project-template/api/controller"
+	"github.com/dingdayu/go-project-template/api/middleware"
 
-	"github.com/dingdayu/singbox-adapter/pkg/logger"
-	"github.com/dingdayu/singbox-adapter/pkg/otel"
+	"github.com/dingdayu/go-project-template/pkg/logger"
+	"github.com/dingdayu/go-project-template/pkg/otel"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"

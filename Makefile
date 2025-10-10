@@ -26,7 +26,7 @@ all: test build
 
 build: clean
 	@echo "Building with version: $(VERSION)"
-	$(GOBUILD) -o $(APP_NAME) -v -ldflags "-X 'github.com/dingdayu/singbox-adapter/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/singbox-adapter/model/entity.BuildTime=$(BUILD_TIME)'"
+	$(GOBUILD) -o $(APP_NAME) -v -ldflags "-X 'github.com/dingdayu/go-project-template/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/go-project-template/model/entity.BuildTime=$(BUILD_TIME)'"
 
 test:
 	$(GOTEST) -v -race -coverprofile=coverage.out ./...
@@ -43,10 +43,10 @@ deps:
 
 # 交叉编译
 build-linux:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(APP_NAME)_linux_amd64 -v -ldflags "-X 'github.com/dingdayu/singbox-adapter/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/singbox-adapter/model/entity.BuildTime=$(BUILD_TIME)'"
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(APP_NAME)_linux_amd64 -v -ldflags "-X 'github.com/dingdayu/go-project-template/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/go-project-template/model/entity.BuildTime=$(BUILD_TIME)'"
 
 build-windows:
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(APP_NAME).exe -v -ldflags "-X 'github.com/dingdayu/singbox-adapter/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/singbox-adapter/model/entity.BuildTime=$(BUILD_TIME)'"
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) -o $(APP_NAME).exe -v -ldflags "-X 'github.com/dingdayu/go-project-template/model/entity.BuildVersion=$(VERSION)' -X 'github.com/dingdayu/go-project-template/model/entity.BuildTime=$(BUILD_TIME)'"
 
 
 help:

@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/dingdayu/singbox-adapter/model/entity"
+	"github.com/dingdayu/go-project-template/model/entity"
 
 	"github.com/gin-gonic/gin"
 )

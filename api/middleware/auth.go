@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dingdayu/singbox-adapter/model/entity"
-	"github.com/dingdayu/singbox-adapter/model/entity/contextkey"
-	"github.com/dingdayu/singbox-adapter/pkg/jwt"
-	"github.com/dingdayu/singbox-adapter/pkg/logger"
+	"github.com/dingdayu/go-project-template/model/entity"
+	"github.com/dingdayu/go-project-template/model/entity/contextkey"
+	"github.com/dingdayu/go-project-template/pkg/jwt"
+	"github.com/dingdayu/go-project-template/pkg/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
