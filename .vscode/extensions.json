@@ -1,0 +1,17 @@
+{
+  "recommendations": [
+    // 🐹 Go 语言核心支持（必须）
+    "golang.go",
+    // 🔧 Go 工具链增强（gopls、格式化、调试）
+    "hxw.vim-mode-plus",
+    "marlonfan.gotemplate",
+    // 📝 代码格式化与 linting（推荐配合 gofmt/goimports）
+    "bradlc.vscode-tailwindcss", // 如果用了 Tailwind（如前端部分）
+    "esbenp.prettier-vscode", // 如果有 JS/TS 前端或配置文件需要格式化
+    // 🗃️ 配置文件支持（YAML/JSON）
+    "redhat.vscode-yaml", // YAML 文件高亮与提示（如有配置文件）
+    "mikestead.dotenv", // .env 文件高亮与提示（如有环境变量配置）
+    // 🌐 API 调试工具（用于测试 Gin 路由）
+    "humao.rest-client", // 快速发送 HTTP 请求测试 API（强烈推荐！）
+  ]
+}
