@@ -33,3 +33,5 @@ go.work.sum
 
 .DS_Store
 app.db
+# Added by goreleaser init:
+dist/
