@@ -22,7 +22,7 @@ Write-Host "NEW_MOD: $NewMod"
 go mod edit -module $NewMod
 
 # 2) 替换源码文本
-$files = git ls-files | Select-String -Pattern '\.(go|md|yaml|yml|toml|json|mk|Makefile)$'
+$files = git ls-files | Select-String -Pattern '\.(go|md|yaml|yml|toml|json|mk)$|(^Makefile$)'
 $files = $files.ToString().Split([Environment]::NewLine, [System.StringSplitOptions]::RemoveEmptyEntries)
 
 foreach ($f in $files) {

@@ -28,7 +28,7 @@ go mod edit -module "$NEW_MOD"
 
 # 2) 替换源码中的 import/引用（保守做法：仅 *.go、*.md、Makefile 等常见文本）
 #   注意：GNU sed 与 BSD sed 的 -i 行为不同，下面兼容处理
-FILES=$(git ls-files | grep -E '\.(go|md|yaml|yml|toml|json|mk|Makefile)$' || true)
+FILES=$(git ls-files | grep -E '\.(go|md|yaml|yml|toml|json|mk)$|(^Makefile$)' || true)
 
 if [[ -n "$FILES" ]]; then
   if sed --version >/dev/null 2>&1; then

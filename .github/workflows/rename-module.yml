@@ -55,7 +55,7 @@ jobs:
 
           go mod edit -module "$NEW_MOD"
 
-          FILES=$(git ls-files | grep -E '\.(go|md|yaml|yml|toml|json|mk|Makefile)$' || true)
+          FILES=$(git ls-files | grep -E '\.(go|md|yaml|yml|toml|json|mk)$|(^Makefile$)' || true)
           if [ -n "$FILES" ]; then
             if sed --version >/dev/null 2>&1; then
               sed -i "s#${OLD_MOD}#${NEW_MOD}#g" $FILES
