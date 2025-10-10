@@ -37,7 +37,7 @@ func Run(ctx context.Context) {
 		err = errors.Join(err, otelShutdown(context.Background()))
 	}()
 
-	addr := net.JoinHostPort(viper.GetString("http.host"), viper.GetString("http.port"))
+	addr := net.JoinHostPort(viper.GetString("app.host"), viper.GetString("app.port"))
 
 	srv := &http.Server{
 		Addr:           addr,

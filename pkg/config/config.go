@@ -36,6 +36,13 @@ func Init() {
 		// read in environment variables that match
 		viper.SetEnvPrefix("GO")
 		viper.AutomaticEnv()
+
+		viper.BindEnv("app.service_name", "OTEL_SERVICE_NAME")
+		viper.BindEnv("app.port", "HTTP_PORT")
+		viper.BindEnv("app.environment", "ENVIRONMENT")
+		viper.BindEnv("jwt.secret", "JWT_SECRET")
+		viper.BindEnv("db", "DB")
+
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 		if err := viper.ReadInConfig(); err == nil {
 			fmt.Printf("\033[1;30;42m[info]\033[0m using config file %s\n", viper.ConfigFileUsed())
