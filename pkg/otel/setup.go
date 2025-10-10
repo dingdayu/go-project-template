@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"runtime/debug"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -161,4 +164,18 @@ func newLogExporter(ctx context.Context, opt Options) (*otlploghttp.Exporter, er
 		opts = append(opts, otlploghttp.WithHeaders(opt.Headers))
 	}
 	return otlploghttp.New(ctx, opts...)
+}
+
+func GetServiceName() string {
+	if serviceName := os.Getenv("OTEL_SERVICE_NAME"); serviceName != "" {
+		return serviceName
+	}
+	if serviceName := os.Getenv("APP_NAME"); serviceName != "" {
+		return serviceName
+	}
+	if bi, ok := debug.ReadBuildInfo(); ok && bi != nil {
+		parts := strings.Split(bi.Main.Path, "/")
+		return parts[len(parts)-1] // 返回最后一个部分作为模块名
+	}
+	return ""
 }

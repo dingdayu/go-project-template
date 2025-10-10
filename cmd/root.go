@@ -7,16 +7,19 @@ import (
 	"github.com/dingdayu/go-project-template/model/entity"
 	"github.com/dingdayu/go-project-template/pkg/config"
 	"github.com/dingdayu/go-project-template/pkg/logger"
+	"github.com/dingdayu/go-project-template/pkg/otel"
 
 	"github.com/common-nighthawk/go-figure"
 	"github.com/spf13/cobra"
 )
 
+var appName = otel.GetServiceName()
+
 // RootCmd RootCmd
 var rootCmd = &cobra.Command{
-	Use:              "singbox-adapter",
-	Short:            "Singbox Subscribe Adapter.",
-	Long:             "Singbox Subscribe Adapter.",
+	Use:              appName,
+	Short:            appName + " command.",
+	Long:             appName + " command.",
 	TraverseChildren: true,
 }
 
@@ -27,7 +30,7 @@ func init() {
 		}
 	}()
 
-	myFigure := figure.NewFigure("Singbox-Adapter", "slant", true)
+	myFigure := figure.NewFigure(appName, "slant", true)
 	myFigure.Print()
 
 	fmt.Printf("Version: %s\n", entity.BuildVersion)

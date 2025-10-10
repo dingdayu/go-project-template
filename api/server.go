@@ -24,7 +24,7 @@ func Run(ctx context.Context) {
 	defer stop()
 
 	// ---------- OpenTelemetry ----------
-	if os.Getenv("OTEL_SERVICE_NAME") != "" {
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
 		otelShutdown, err := otel.Setup(ctx, otel.Options{
 			Environment:  gin.Mode(),
 			Insecure:     true,

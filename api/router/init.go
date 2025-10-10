@@ -39,7 +39,7 @@ func Handler() *gin.Engine {
 	handle.GET("/health", controller.Hello)
 	handle.GET("/ping", controller.Ping)
 
-	if os.Getenv("OTEL_SERVICE_NAME") != "" {
+	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
 		// otel 中间件
 		handle.Use(otel.GinMiddleware())
 		handle.GET("/metrics", otel.Prometheus)
