@@ -33,10 +33,10 @@ var (
 	tracer = otel.Tracer("github.com/dingdayu/go-project-template/model/dao")
 )
 
-func Init() {
+func Setup() {
 	var err error
 	once.Do(func() {
-		dsn := viper.GetString("db.dsn")
+		dsn := viper.GetString("db")
 		dbCfg := &gorm.Config{
 			Logger: logger.NewGormLogger(logger.WithNamespace("gorm")),
 		}
@@ -45,14 +45,18 @@ func Init() {
 
 		// try parse dsn as URL to detect scheme first
 		if u, perr := url.Parse(dsn); perr == nil && u.Scheme != "" {
+			fmt.Printf("\033[1;30;42m[info]\033[0m db dsn scheme detected: %s\n", u.Scheme)
 			switch strings.ToLower(u.Scheme) {
 			case "postgres", "postgresql":
 				dialector = postgres.Open(dsn)
 			case "mysql":
 				dialector = mysql.Open(dsn)
-			case "sqlite", "file":
-				// sqlite dsn might be like file:test.db?_foreign_keys=1 or just path
-				// pass raw dsn to sqlite driver
+			case "sqlite", "sqlite3":
+				normalized := normalizeSQLiteDSN(dsn)
+				fmt.Printf("\033[1;30;42m[info]\033[0m db sqlite normalized dsn: %s\n", normalized)
+				dialector = sqlite.Open(normalized)
+			case "file":
+				// DSN already in sqlite URI form: file:xxx?params
 				dialector = sqlite.Open(dsn)
 			}
 		}
@@ -99,6 +103,60 @@ func GetDB() *gorm.DB {
 
 func GetContextDB(ctx context.Context) *gorm.DB {
 	return db.WithContext(ctx)
+}
+
+// normalizeSQLiteDSN converts sqlite URL-style DSNs into forms accepted by gorm's sqlite driver.
+// Examples:
+//
+//	sqlite://app.db           -> app.db
+//	sqlite:///abs/app.db      -> /abs/app.db
+//	sqlite://data/app.db      -> data/app.db
+//	sqlite://app.db?cache=on  -> file:app.db?cache=on
+//	sqlite:/tmp/app.db        -> /tmp/app.db (via Opaque)
+//	file:uri?params           -> file:uri?params (unchanged)
+func normalizeSQLiteDSN(dsn string) string {
+	u, err := url.Parse(dsn)
+	if err != nil || u.Scheme == "" {
+		return dsn
+	}
+	// Pass-through file: URIs
+	if strings.EqualFold(u.Scheme, "file") {
+		return dsn
+	}
+	// Only handle sqlite schemes here
+	if !strings.EqualFold(u.Scheme, "sqlite") && !strings.EqualFold(u.Scheme, "sqlite3") {
+		return dsn
+	}
+
+	var path string
+	if u.Opaque != "" {
+		// e.g., sqlite:/tmp/app.db or sqlite:relative.db
+		path = u.Opaque
+	} else if u.Host != "" && (u.Path == "" || u.Path == "/") {
+		// sqlite://app.db
+		path = u.Host
+	} else if u.Path != "" {
+		// sqlite:///abs/app.db -> /abs/app.db
+		// sqlite://data/app.db -> data/app.db
+		if u.Host != "" && u.Path != "/" {
+			path = u.Host + "/" + strings.TrimPrefix(u.Path, "/")
+		} else {
+			path = u.Path
+		}
+	} else {
+		// Fallback: strip scheme prefixes
+		path = strings.TrimPrefix(dsn, u.Scheme+"://")
+		path = strings.TrimPrefix(path, u.Scheme+":")
+	}
+
+	// Preserve query parameters by using SQLite URI mode when present
+	if u.RawQuery != "" {
+		if strings.Contains(path, "?") {
+			return path + "&" + u.RawQuery
+		}
+		return "file:" + path + "?" + u.RawQuery
+	}
+	return path
 }
 
 type JSON json.RawMessage

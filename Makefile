@@ -36,7 +36,7 @@ clean:
 	rm -f $(APP_NAME)
 
 run:
-	OTEL_SERVICE_NAME="Singbox-Adapter" OTEL_EXPORTER_OTLP_ENDPOINT="http://otelcol-opentelemetry-collector.observability.svc:4318" go run . http
+	OTEL_SERVICE_NAME=$(APP_NAME) OTEL_EXPORTER_OTLP_ENDPOINT="http://otelcol-opentelemetry-collector.observability.svc:4318" go run . http
 
 deps:
 	$(GOGET) -v -t -d ./...

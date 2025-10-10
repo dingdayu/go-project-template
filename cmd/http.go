@@ -15,7 +15,7 @@ var httpCmd = &cobra.Command{
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		// redis.Init()
-		dao.Init()
+		dao.Setup()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api.Run(cmd.Context())
