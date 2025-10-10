@@ -1,0 +1,76 @@
+package api
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log"
+	"net"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"github.com/dingdayu/singbox-adapter/api/router"
+	"github.com/dingdayu/singbox-adapter/pkg/otel"
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
+)
+
+func Run(ctx context.Context) {
+	// ✅ 一行搞定信号监听 + context 取消
+	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
+
+	otelShutdown, err := otel.Setup(ctx, otel.Options{
+		ServiceName:  "processgo",
+		Environment:  gin.Mode(),
+		Insecure:     true,
+		MetricPeriod: 10 * time.Second,
+	})
+	if err != nil {
+		log.Fatalf("\033[1;30;41m[error]\033[0m failed to setup otel: %v", err)
+		return
+	}
+	// Handle shutdown properly so nothing leaks.
+	defer func() {
+		err = errors.Join(err, otelShutdown(context.Background()))
+	}()
+
+	addr := net.JoinHostPort(viper.GetString("http.host"), viper.GetString("http.port"))
+
+	srv := &http.Server{
+		Addr:           addr,
+		Handler:        router.Handler(),
+		WriteTimeout:   6 * time.Minute,
+		ReadTimeout:    15 * time.Second,
+		IdleTimeout:    20 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	fmt.Printf("\033[1;30;42m[info]\033[0m start http server listening %s\n", addr)
+
+	// 启动 HTTP Server（非阻塞）
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Printf("\033[1;30;41m[error]\033[0m HTTP Server failed: %v", err)
+			os.Exit(1)
+		}
+	}()
+
+	// ✅ 等待信号（ctx 被取消）
+	<-ctx.Done()
+	fmt.Println("\n\033[1;30;42m[info]\033[0m Shutdown Server...")
+
+	// ✅ 在收到信号后，创建带超时的 context 用于 Shutdown
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel() // 确保 cancel 被调用
+
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		fmt.Printf("\033[1;30;41m[error]\033[0m Server forced to shutdown: %v\n", err)
+		os.Exit(1) // 可选：强制退出
+	} else {
+		fmt.Println("\033[1;30;42m[info]\033[0m HTTP Server exited gracefully")
+	}
+}
