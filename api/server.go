@@ -24,7 +24,6 @@ func Run(ctx context.Context) {
 	defer stop()
 
 	otelShutdown, err := otel.Setup(ctx, otel.Options{
-		ServiceName:  "processgo",
 		Environment:  gin.Mode(),
 		Insecure:     true,
 		MetricPeriod: 10 * time.Second,

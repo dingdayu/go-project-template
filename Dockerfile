@@ -15,7 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o /out/${AP
 FROM gcr.io/distroless/base-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/${APP_NAME} /app/${APP_NAME}
-ENV GIN_MODE=release PORT=${GO_HTTP_PORT}
+ENV GIN_MODE=release PORT=${GO_HTTP_PORT} OTEL_SERVICE_NAME=${APP_NAME}
 EXPOSE ${GO_HTTP_PORT}
 USER nonroot:nonroot
 

@@ -11,9 +11,6 @@ import (
 
 func GinMiddleware() gin.HandlerFunc {
 	serviceName := os.Getenv("OTEL_SERVICE_NAME")
-	if serviceName == "" {
-		serviceName = defaultName
-	}
 	return otelgin.Middleware(serviceName)
 }
 

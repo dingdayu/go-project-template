@@ -21,14 +21,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	prom "go.opentelemetry.io/otel/exporters/prometheus"
 	"go.opentelemetry.io/otel/sdk/resource"
-	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
-
-var defaultName = "my-service"
 
 // Options 控制初始化行为
 type Options struct {
-	ServiceName  string            // 必填：服务名
 	Environment  string            // 可选：dev/staging/prod
 	Endpoint     string            // 可选：例如 "otelcol.observability.svc:4318"（留空则走环境变量）
 	Insecure     bool              // 集群内常用
@@ -39,10 +35,6 @@ type Options struct {
 // Setup 初始化 OTEL：Trace + Metric + Log + Propagator
 // 返回 shutdown 用于优雅退出
 func Setup(ctx context.Context, opt Options) (shutdown func(context.Context) error, err error) {
-	if opt.ServiceName == "" {
-		return nil, fmt.Errorf("ServiceName is required")
-	}
-	defaultName = opt.ServiceName
 	if opt.MetricPeriod <= 0 {
 		opt.MetricPeriod = 10 * time.Second
 	}
@@ -57,10 +49,9 @@ func Setup(ctx context.Context, opt Options) (shutdown func(context.Context) err
 	// ---------- Resource（统一） ----------
 	res, err := resource.New(
 		ctx,
-		resource.WithFromEnv(),      // 允许通过 OTEL_RESOURCE_ATTRIBUTES 注入
+		resource.WithFromEnv(),      // 允许通过 OTEL_SERVICE_NAME OTEL_RESOURCE_ATTRIBUTES 注入
 		resource.WithTelemetrySDK(), // sdk 信息
 		resource.WithAttributes(
-			semconv.ServiceNameKey.String(opt.ServiceName),
 			attribute.String("environment", opt.Environment),
 		),
 	)
