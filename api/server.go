@@ -23,19 +23,22 @@ func Run(ctx context.Context) {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	otelShutdown, err := otel.Setup(ctx, otel.Options{
-		Environment:  gin.Mode(),
-		Insecure:     true,
-		MetricPeriod: 10 * time.Second,
-	})
-	if err != nil {
-		log.Fatalf("\033[1;30;41m[error]\033[0m failed to setup otel: %v", err)
-		return
+	// ---------- OpenTelemetry ----------
+	if os.Getenv("OTEL_SERVICE_NAME") != "" {
+		otelShutdown, err := otel.Setup(ctx, otel.Options{
+			Environment:  gin.Mode(),
+			Insecure:     true,
+			MetricPeriod: 10 * time.Second,
+		})
+		if err != nil {
+			log.Fatalf("\033[1;30;41m[error]\033[0m failed to setup otel: %v", err)
+			return
+		}
+		// Handle shutdown properly so nothing leaks.
+		defer func() {
+			err = errors.Join(err, otelShutdown(context.Background()))
+		}()
 	}
-	// Handle shutdown properly so nothing leaks.
-	defer func() {
-		err = errors.Join(err, otelShutdown(context.Background()))
-	}()
 
 	addr := net.JoinHostPort(viper.GetString("app.host"), viper.GetString("app.port"))
 

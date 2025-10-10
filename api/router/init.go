@@ -1,6 +1,7 @@
 package router
 
 import (
+	"os"
 	"time"
 
 	"github.com/dingdayu/go-project-template/api/controller"
@@ -38,12 +39,14 @@ func Handler() *gin.Engine {
 	handle.GET("/health", controller.Hello)
 	handle.GET("/ping", controller.Ping)
 
-	// otel 中间件
-	handle.Use(otel.GinMiddleware())
-	handle.GET("/metrics", otel.Prometheus)
+	if os.Getenv("OTEL_SERVICE_NAME") != "" {
+		// otel 中间件
+		handle.Use(otel.GinMiddleware())
+		handle.GET("/metrics", otel.Prometheus)
 
-	// 注册 http 指标
-	handle.Use(middleware.HttpRequestMetrics())
+		// 注册 http 指标
+		handle.Use(otel.HttpRequestMetrics())
+	}
 
 	// 服务路由
 	handle.GET("/version", controller.Version)
