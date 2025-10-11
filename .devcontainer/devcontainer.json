@@ -1,6 +1,10 @@
 {
   "name": "Go",
-  "image": "golang:1.25",
+  "context": "workspaceFolder",
+  "forwardPorts": [
+    8080
+  ],
+  "image": "mcr.microsoft.com/devcontainers/go:1.25",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -9,23 +13,9 @@
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/common-utils:2": {
-      "installZsh": "true",
-      "username": "vscode",
-      "userUid": "1000",
-      "userGid": "1000",
-      "upgradePackages": "true"
-    },
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "none"
-    },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/git:1": {
-      "version": "latest",
-      "ppa": "false"
     }
   },
-  "postCreateCommand": "go mod download"
+  "postCreateCommand": "echo \"Please run 'go mod download' to install dependencies\""
 }

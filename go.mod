@@ -1,6 +1,6 @@
 module github.com/dingdayu/go-project-template
 
-go 1.25.2
+go 1.25
 
 require (
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
