@@ -13,5 +13,6 @@
     "mikestead.dotenv", // .env 文件高亮与提示（如有环境变量配置）
     // 🌐 API 调试工具（用于测试 Gin 路由）
     "humao.rest-client", // 快速发送 HTTP 请求测试 API（强烈推荐！）
+    "ms-vscode-remote.remote-containers" // 远程容器开发支持（如果使用 Dev Containers）
   ]
 }
