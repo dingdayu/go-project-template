@@ -4,6 +4,7 @@ import (
 	"github.com/dingdayu/go-project-template/api"
 	"github.com/dingdayu/go-project-template/model/dao"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var httpCmd = &cobra.Command{
@@ -15,7 +16,9 @@ var httpCmd = &cobra.Command{
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		// redis.Init()
-		dao.Setup()
+		if viper.GetString("db") != "" {
+			dao.Setup()
+		}
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api.Run(cmd.Context())
