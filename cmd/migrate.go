@@ -5,6 +5,7 @@ import (
 
 	"github.com/dingdayu/go-project-template/model/dao"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var migrateCmd = &cobra.Command{
@@ -15,6 +16,10 @@ var migrateCmd = &cobra.Command{
 		return nil
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
+		if viper.GetString("db") == "" {
+			fmt.Println("❌ Database DSN is not configured. Please set it in your config file or via the DB_DSN environment variable.")
+			return
+		}
 		dao.Setup()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -25,11 +30,11 @@ var migrateCmd = &cobra.Command{
 
 		err := dao.GetContextDB(cmd.Context()).AutoMigrate(dao.User{})
 		if err != nil {
-			fmt.Printf("❌ Failed to apply migrations: %v\n", err)
+			fmt.Printf("❌ Database migration failed: %v\n", err)
 			return
 		}
 
-		fmt.Println("✅ All migrations applied successfully!")
+		fmt.Println("✅ Database migration completed successfully!")
 	},
 }
 
