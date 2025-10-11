@@ -1,50 +1,89 @@
-# Go Template (Gin)
+# Go Project Template (Gin)
 
-一键起步的 Go Web 模板，内置：Gin 路由、CI、Lint、Docker、多环境配置，以及**模块名自动重命名**。
+An opinionated, ready-to-use Go web project template using Gin. It includes:
 
-## 初始化
+- Gin router and middleware (logging, recovery, rate limiting, auth)
+- CI and linting examples
+- Dockerfile and image build targets
+- Multi-environment config support
+- A script/workflow to rename the module when you create a repo from this template
 
-> 通过 GitHub 的 **Use this template** 创建新仓库后：
+This README provides a concise quick start, development commands, and configuration notes.
 
-**方式 A：本地脚本**
+## Quick start
+
+1. Create a new repository from this template using GitHub's "Use this template" button.
+2. Rename the module to match your repo path (see options below).
+3. Run the app locally.
+
+### Rename Go module
+
+Option A — local script (recommended):
 
 ```bash
 ./scripts/rename-module.sh github.com/<your>/<repo>
 ```
 
-**方式 B：GitHub Actions**
+Option B — GitHub Actions: open the repository Actions tab and run the "Rename Go module (one-time)" workflow. Leave the input empty to use the default `github.com/<owner>/<repo>`.
 
-- 打开 GitHub → Actions → **Rename Go module (one-time)** → Run workflow
-- 可留空使用默认 `github.com/<owner>/<repo>`
+## Development
 
-## 开发
+Install dependencies and run the server:
 
 ```bash
 make tidy
 make run
 ```
 
-访问：`http://localhost:8080/healthz`、`/api/v1/hello`
+Open the health and example endpoints:
 
-## 测试 & Lint
+- http://localhost:8080/healthz
+- http://localhost:8080/api/v1/hello
+
+## Test & Lint
+
+Run unit tests and linters:
 
 ```bash
 make test
 make lint
 ```
 
-## 构建镜像
+## Docker
+
+Build the production image:
 
 ```bash
 make docker-build
 ```
 
-## 配置
+## Configuration
 
-- `PORT`：监听端口（默认 `8080`）
-- `APP_ENV`：`dev|prod`（影响 Gin 日志级别）
-- `APP_NAME`：应用名
+Set environment variables to control runtime behavior:
 
-## 版本信息
+- PORT: listening port (default: 8080)
+- APP_ENV: debug | release | test (from gin)
+- APP_NAME: application name
 
-`model/entity/version.go` 会在构建时被 `-ldflags` 注入，CI/Makefile 已示例。
+Other configuration values are loaded from the project's config package. See `pkg/config` or `config/config.go` for details.
+
+## Version info
+
+Build-time version information is injected into `model/entity/version.go` using `-ldflags` in the Makefile/CI. See the Makefile and CI workflow for examples.
+
+## Project structure (selected)
+
+- `cmd/` — entry points and CLI commands
+- `api/` — HTTP server and controllers
+- `pkg/` — reusable packages (config, jwt, logger, otel)
+- `model/` — data models and DAOs
+- `scripts/` — helper scripts (module rename)
+
+## Notes
+
+- This template aims to be minimal and practical. Feel free to remove or replace components you don't need.
+- If you have questions about running or customizing the template, open an issue in your fork.
+
+---
+
+For the original Chinese README, see `README.zh.md`.
