@@ -5,7 +5,6 @@
 - Gin 路由与中间件（日志、恢复、限流、鉴权）
 - CI 与代码检查示例
 - Dockerfile 与镜像构建目标
-- 多环境配置支持
 - 用于从模板创建仓库后重命名模块的脚本/工作流
 
 本说明包含快速上手指南、常用开发命令和配置说明。
@@ -24,7 +23,9 @@
 ./scripts/rename-module.sh github.com/<your>/<repo>
 ```
 
-方式 B — GitHub Actions：在仓库的 Actions 面板中运行 "Rename Go module (one-time)" 工作流；留空则使用默认 `github.com/<owner>/<repo>`。
+方式 B — GitHub Actions：
+
+在你克隆的仓库 Actions 面板中运行 "Rename Go module (one-time)" 工作流；留空则使用默认 `github.com/<owner>/<repo>`。
 
 ## 开发
 
@@ -38,7 +39,7 @@ make run
 打开健康检查和示例接口：
 
 - http://localhost:8080/healthz
-- http://localhost:8080/api/v1/hello
+- http://localhost:8080/version
 
 ## 测试与 Lint
 
@@ -63,7 +64,7 @@ make docker-build
 - APP_ENV：debug | release | test（来自 gin）
 - APP_NAME：应用名称
 
-更多配置请查看 `pkg/config` 或 `config/config.go`。
+更多配置请查看 `pkg/config` 或 `config.yaml`。
 
 ## 版本信息
 

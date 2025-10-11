@@ -1,11 +1,12 @@
 # Go Project Template (Gin)
 
+> 中文 [README.zh.md](README.zh.md).
+
 An opinionated, ready-to-use Go web project template using Gin. It includes:
 
 - Gin router and middleware (logging, recovery, rate limiting, auth)
 - CI and linting examples
 - Dockerfile and image build targets
-- Multi-environment config support
 - A script/workflow to rename the module when you create a repo from this template
 
 This README provides a concise quick start, development commands, and configuration notes.
@@ -24,7 +25,9 @@ Option A — local script (recommended):
 ./scripts/rename-module.sh github.com/<your>/<repo>
 ```
 
-Option B — GitHub Actions: open the repository Actions tab and run the "Rename Go module (one-time)" workflow. Leave the input empty to use the default `github.com/<owner>/<repo>`.
+Option B — GitHub Actions:
+
+Open your repository Actions tab and run the "Rename Go module (one-time)" workflow. Leave the input empty to use the default `github.com/<owner>/<repo>`.
 
 ## Development
 
@@ -38,7 +41,7 @@ make run
 Open the health and example endpoints:
 
 - http://localhost:8080/healthz
-- http://localhost:8080/api/v1/hello
+- http://localhost:8080/version
 
 ## Test & Lint
 
@@ -65,7 +68,7 @@ Set environment variables to control runtime behavior:
 - APP_ENV: debug | release | test (from gin)
 - APP_NAME: application name
 
-Other configuration values are loaded from the project's config package. See `pkg/config` or `config/config.go` for details.
+Other configuration values are loaded from the project's config package. See `pkg/config` or `config.yaml` for details.
 
 ## Version info
 
@@ -83,7 +86,3 @@ Build-time version information is injected into `model/entity/version.go` using 
 
 - This template aims to be minimal and practical. Feel free to remove or replace components you don't need.
 - If you have questions about running or customizing the template, open an issue in your fork.
-
----
-
-For the original Chinese README, see `README.zh.md`.
