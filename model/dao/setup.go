@@ -3,16 +3,12 @@ package dao
 
 import (
 	"context"
-	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"os"
-	"sync"
-
 	"net/url"
+	"os"
 	"strings"
+	"sync"
 
 	"github.com/dingdayu/go-project-template/pkg/logger"
 	pkgOtel "github.com/dingdayu/go-project-template/pkg/otel"
@@ -22,7 +18,6 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 	"gorm.io/plugin/opentelemetry/tracing"
 )
 
@@ -157,86 +152,4 @@ func normalizeSQLiteDSN(dsn string) string {
 		return "file:" + path + "?" + u.RawQuery
 	}
 	return path
-}
-
-type JSON json.RawMessage
-
-// Scan scan value into Jsonb, implements sql.Scanner interface
-func (j *JSON) Scan(value interface{}) error {
-	if value == nil {
-		*j = nil
-		return nil
-	}
-
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New(fmt.Sprint("Failed to unmarshal JSON value:", value))
-	}
-
-	result := json.RawMessage{}
-	err := json.Unmarshal(bytes, &result)
-	*j = JSON(result)
-	return err
-}
-
-// Value return json value, implement driver.Valuer interface
-func (j JSON) Value() (driver.Value, error) {
-	if len(j) == 0 {
-		return nil, nil
-	}
-	return json.RawMessage(j).MarshalJSON()
-}
-
-// MarshalJSON implements json.Marshaler interface
-func (j JSON) MarshalJSON() ([]byte, error) {
-	if len(j) == 0 {
-		return []byte("null"), nil
-	}
-	return []byte(j), nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler interface
-func (j *JSON) UnmarshalJSON(data []byte) error {
-	if j == nil {
-		return errors.New("JSON: UnmarshalJSON on nil pointer")
-	}
-	*j = JSON(data)
-	return nil
-}
-
-func (JSON) GormDataType() string {
-	return "jsonb"
-}
-
-func (JSON) GormDBDataType(db *gorm.DB, field *schema.Field) string {
-	// use field.Tag, field.TagSettings gets field's tags
-	// checkout https://github.com/go-gorm/gorm/blob/master/schema/field.go for all options
-
-	// returns different database type based on driver name
-	switch db.Name() {
-	case "mysql", "sqlite":
-		return "JSON"
-	case "postgres":
-		return "JSONB"
-	}
-	return ""
-}
-
-type NullableField[T any] struct {
-	Set   bool
-	Value *T
-}
-
-func (f *NullableField[T]) UnmarshalJSON(b []byte) error {
-	f.Set = true
-	if string(b) == "null" {
-		f.Value = nil
-		return nil
-	}
-	var val T
-	if err := json.Unmarshal(b, &val); err != nil {
-		return err
-	}
-	f.Value = &val
-	return nil
 }

@@ -65,4 +65,24 @@ lint: ## golangci-lint run
 docker-build: ## docker build image
 	docker build --build-arg GOVERSION=$(GOVERSION) --build-arg APP_NAME=$(APP_NAME) --build-arg GO_HTTP_PORT=$(GO_HTTP_PORT) -t $(APP_NAME):dev .
 
+
+# 版本化迁移方案，使用 Atlas + GORM
+# 参考：https://atlasgo.io/getting-started/gorm.html
+# migrate-db:
+# 	atlas migrate diff $(name) --env gorm
+
+# inspect-db:
+# 	atlas schema inspect \
+# 	  --url "$(POSTGRES_DSN)" \
+# 	  -w
+
+# inspect-gorm:
+# 	atlas schema inspect --env gorm --url "env://src"
+
+# migrate-up:
+# 	atlas migrate apply --env gorm -u "$(PGURL)"
+
+# migrate-plan:
+# 	atlas migrate apply --env gorm -u "$(PGURL)" --dry-run
+
 .PHONY: all build test clean run deps build-linux build-windows deploy receiver
