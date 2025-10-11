@@ -1,11 +1,14 @@
 package router
 
 import (
+	"io/fs"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/dingdayu/go-project-template/api/controller"
 	"github.com/dingdayu/go-project-template/api/middleware"
+	"github.com/dingdayu/go-project-template/assets"
 
 	"github.com/dingdayu/go-project-template/pkg/logger"
 	"github.com/dingdayu/go-project-template/pkg/otel"
@@ -27,12 +30,12 @@ func Handler() *gin.Engine {
 	// 开启 gzip
 	handle.Use(gzip.Gzip(gzip.DefaultCompression))
 
-	// handle.GET("/", func(c *gin.Context) {
-	// 	file, _ := assets.IndexFS.ReadFile("index.html")
-	// 	c.Data(http.StatusOK, "text/html; charset=utf-8", file)
-	// })
-	// assets, _ := fs.Sub(dist.AssetsFS, "assets")
-	// handle.StaticFS("/assets", http.FS(assets))
+	handle.GET("/", func(c *gin.Context) {
+		file, _ := assets.IndexFS.ReadFile("index.html")
+		c.Data(http.StatusOK, "text/html; charset=utf-8", file)
+	})
+	assets, _ := fs.Sub(assets.DistFS, "dist/assets")
+	handle.StaticFS("/assets", http.FS(assets))
 
 	// 探活与采集接口
 	handle.HEAD("/health", controller.Hello)

@@ -35,3 +35,4 @@ go.work.sum
 app.db
 # Added by goreleaser init:
 dist/
+!assets/dist/
