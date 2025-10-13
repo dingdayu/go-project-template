@@ -7,7 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var httpAsync bool
+var (
+	httpAsync bool
+	httpCron  bool
+)
 
 var httpCmd = &cobra.Command{
 	Use:   "http",
@@ -26,6 +29,9 @@ var httpCmd = &cobra.Command{
 		if httpAsync {
 			go api.AsyncRun(cmd.Context())
 		}
+		if httpCron {
+			go api.CronRun(cmd.Context())
+		}
 
 		api.Run(cmd.Context())
 	},
@@ -35,6 +41,9 @@ func init() {
 	rootCmd.AddCommand(httpCmd)
 
 	// add --async flag to control whether to start async processing
-	httpCmd.Flags().BoolVar(&httpAsync, "async", true, "Start async processing at server start")
+	httpCmd.Flags().BoolVar(&httpAsync, "async", false, "Start async processing at server start")
 	_ = viper.BindPFlag("http.async", httpCmd.Flags().Lookup("async"))
+
+	httpCmd.Flags().BoolVar(&httpCron, "cron", false, "Start cron processing at server start")
+	_ = viper.BindPFlag("http.cron", httpCmd.Flags().Lookup("cron"))
 }
