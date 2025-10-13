@@ -3,7 +3,9 @@ module github.com/dingdayu/go-project-template
 go 1.25
 
 require (
+	github.com/Azure/go-amqp v1.5.0
 	github.com/common-nighthawk/go-figure v0.0.0-20210622060536-734e95fb86be
+	github.com/dingdayu/async/v4 v4.0.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-contrib/gzip v1.2.3
