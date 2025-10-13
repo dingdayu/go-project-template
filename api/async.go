@@ -10,6 +10,6 @@ import (
 )
 
 func AsyncRun(ctx context.Context) {
-	async.Wait()
+	async.Run(ctx)
 	fmt.Println("\u001B[1;30;42m[info]\u001B[0m Task exited")
 }
