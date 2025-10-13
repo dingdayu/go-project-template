@@ -7,7 +7,10 @@ linters:
   enable:
     - govet
     - staticcheck
-    - gofmt
+    - ineffassign
+    - revive
+    - unused
+    - misspell
     - gocyclo
     - revive
     - errcheck
