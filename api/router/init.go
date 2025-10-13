@@ -1,3 +1,4 @@
+// Package router builds gin routers and middlewares.
 package router
 
 import (
@@ -21,42 +22,43 @@ import (
 
 var handle *gin.Engine
 
+// Handler constructs and returns the gin engine.
 func Handler() *gin.Engine {
 	handle = gin.New()
 	handle.ForwardedByClientIP = true
 
-	// 开启 Recover
+	// enable recover middleware
 	handle.Use(middleware.RecoveryWithZap(logger.WithNamespace("recovery"), true))
-	// 开启 gzip
+	// enable gzip middleware
 	handle.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	handle.GET("/", func(c *gin.Context) {
 		file, _ := assets.IndexFS.ReadFile("index.html")
 		c.Data(http.StatusOK, "text/html; charset=utf-8", file)
 	})
-	assets, _ := fs.Sub(assets.DistFS, "dist/assets")
-	handle.StaticFS("/assets", http.FS(assets))
+	assetsFS, _ := fs.Sub(assets.DistFS, "dist/assets")
+	handle.StaticFS("/assets", http.FS(assetsFS))
 
-	// 探活与采集接口
+	// health and metrics endpoints
 	handle.HEAD("/health", controller.Hello)
 	handle.GET("/health", controller.Hello)
 	handle.GET("/ping", controller.Ping)
 
 	if os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT") != "" {
-		// otel 中间件
+		// otel middleware
 		handle.Use(otel.GinMiddleware())
 		handle.GET("/metrics", otel.Prometheus)
 
-		// 注册 http 指标
-		handle.Use(otel.HttpRequestMetrics())
+		// register http metrics
+		handle.Use(otel.HTTPRequestMetrics())
 	}
 
-	// 服务路由
+	// service routes
 	handle.GET("/version", controller.Version)
 
-	// 根据配置决定是否启用 api 请求日志
+	// enable request log middleware based on config
 	if viper.GetBool("log.request_log") {
-		// 启用请求日志中间件
+		// enable request log middleware
 		handle.Use(middleware.WriterLog(logger.WithNamespace("http")))
 	}
 

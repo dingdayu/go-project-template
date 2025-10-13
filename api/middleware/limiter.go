@@ -1,3 +1,4 @@
+// Package middleware defines gin middlewares.
 package middleware
 
 import (
@@ -12,10 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// LimiterLogNamed is the logger namespace for the rate limiter.
 const LimiterLogNamed = "limiter"
 
-// Limiter 处理跨域请求,支持options访问
-// rate: 1-M,1-H,1-D| 次数,
+// Limiter rate limit middleware
+// rate examples: "1-M", "10-H", "100-D".
 func Limiter(logger *slog.Logger, client *libredis.Client, rate string) gin.HandlerFunc {
 	// Define a limit rate to 4 requests per hour.
 	rateFormatted, err := limiter.NewRateFromFormatted(rate)

@@ -1,5 +1,6 @@
+// Package jwt provides JWT issue and parse utilities.
 package jwt
 
 import "go.opentelemetry.io/otel"
 
-var tracer = otel.Tracer("gitlab.keymedbio.com/platform/processgo/pkg/jwt")
+var tracer = otel.Tracer("github.com/dingdayu/go-project-template/pkg/jwt")

@@ -1,3 +1,4 @@
+// Package otel provides OpenTelemetry middlewares and metrics.
 package otel
 
 import (
@@ -14,12 +15,13 @@ import (
 	"go.opentelemetry.io/otel/metric"
 )
 
+// GinMiddleware returns gin's otel middleware.
 func GinMiddleware() gin.HandlerFunc {
 	serviceName := os.Getenv("OTEL_SERVICE_NAME")
 	return otelgin.Middleware(serviceName)
 }
 
-// Prometheus 监控访问点
+// Prometheus exposes the Prometheus metrics endpoint.
 func Prometheus(c *gin.Context) {
 	// register promhttp.HandlerOpts DisableCompression
 	promhttp.InstrumentMetricHandler(prometheus.DefaultRegisterer, promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{
@@ -30,7 +32,8 @@ func Prometheus(c *gin.Context) {
 
 var meter metric.Meter
 
-func HttpRequestMetrics() gin.HandlerFunc {
+// HTTPRequestMetrics records HTTP request metrics.
+func HTTPRequestMetrics() gin.HandlerFunc {
 	serviceName := os.Getenv("OTEL_SERVICE_NAME")
 	meter = otel.Meter(serviceName+"/api", metric.WithInstrumentationVersion("1.0.0"))
 
@@ -47,8 +50,6 @@ func HttpRequestMetrics() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		start := time.Now()
-
-		// 统一使用路由模板，避免 label 爆炸
 		route := c.FullPath()
 		if route == "" {
 			route = "unknown"

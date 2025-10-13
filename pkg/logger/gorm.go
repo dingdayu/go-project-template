@@ -1,4 +1,4 @@
-// pkg/logger/gorm.go
+// Package logger provides unified logging components.
 package logger
 
 import (
@@ -11,13 +11,13 @@ import (
 	"gorm.io/gorm/utils"
 )
 
-// GormLogger 是一个适配 slog 的 GORM 日志实现
+// GormLogger is a slog-backed GORM logger implementation.
 type GormLogger struct {
 	log   *slog.Logger
 	level gormLogger.LogLevel
 }
 
-// NewGormLogger 创建一个新的 GORM 日志适配器
+// NewGormLogger creates a new GORM logger adapter.
 func NewGormLogger(log *slog.Logger) gormLogger.Interface {
 	if log == nil {
 		log = logger
@@ -28,35 +28,35 @@ func NewGormLogger(log *slog.Logger) gormLogger.Interface {
 	}
 }
 
-// LogMode 实现 gorm.Logger 接口：设置日志级别
+// LogMode implements gorm.Logger to set log level.
 func (l *GormLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface {
 	newLogger := *l
 	newLogger.level = level
 	return &newLogger
 }
 
-// Info 实现接口
+// Info implements gorm logger interface.
 func (l *GormLogger) Info(ctx context.Context, msg string, args ...interface{}) {
 	if l.level >= gormLogger.Info {
 		l.log.InfoContext(ctx, fmt.Sprintf(msg, args...))
 	}
 }
 
-// Warn 实现接口
+// Warn implements gorm logger interface.
 func (l *GormLogger) Warn(ctx context.Context, msg string, args ...interface{}) {
 	if l.level >= gormLogger.Warn {
 		l.log.WarnContext(ctx, fmt.Sprintf(msg, args...))
 	}
 }
 
-// Error 实现接口
+// Error implements gorm logger interface.
 func (l *GormLogger) Error(ctx context.Context, msg string, args ...interface{}) {
 	if l.level >= gormLogger.Error {
 		l.log.ErrorContext(ctx, fmt.Sprintf(msg, args...))
 	}
 }
 
-// Trace 实现接口：记录 SQL 执行详情
+// Trace implements gorm logger interface: record SQL details.
 func (l *GormLogger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
 	elapsed := time.Since(begin)
 	sql, rows := fc()

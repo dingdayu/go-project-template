@@ -1,3 +1,4 @@
+// Package api provides entry points to start HTTP, Cron, and Async services.
 package api
 
 import (
@@ -14,24 +15,27 @@ import (
 
 var c *pkgCron.Cron
 
+// CronRun starts the Cron scheduler and gracefully stops on shutdown signals.
 func CronRun(ctx context.Context) {
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	c = pkgCron.New(pkgCron.WithLogger(logger.NewCronLogger(logger.Logger())))
-	// 添加任务到调度器
-	c.AddFunc("@every 5m", cron.CronTimer)
+	// add job to scheduler
+	if _, err := c.AddFunc("@every 5m", cron.Timer); err != nil {
+		fmt.Printf("\u001B[1;30;41m[error]\u001B[0m cron add func failed: %v\n", err)
+	}
 
-	// 启动 Cron 调度器
+	// start Cron scheduler
 	c.Start()
 	fmt.Println("\u001B[1;30;42m[info]\u001B[0m Cron started.")
 
-	// 等待退出信号
+	// wait for shutdown signal
 	<-ctx.Done()
 
-	// 关闭 Cron 调度器
+	// stop Cron scheduler
 	cronCtx := c.Stop()
-	// 这里可以等待所有任务完成，或者设置一个超时时间
+	// wait for jobs to finish (or set a timeout if needed)
 	<-cronCtx.Done()
 	fmt.Println("\u001B[1;30;42m[info]\u001B[0m CRON exited")
 }

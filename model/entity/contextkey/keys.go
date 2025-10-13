@@ -1,17 +1,18 @@
+// Package contextkey defines keys used in context.
 package contextkey
 
-// UserContext 是用于在 context 中传递用户信息的键类型
+// UserContext is a key type used to pass user info via context.
 type UserContext string
 
 var (
-	// Email 用户邮箱
+	// Email is the user email
 	Email UserContext = "email"
-	// RealName 用户真实姓名
+	// RealName is the user's real name
 	RealName UserContext = "real_name"
-	// UserName 用户名（登录名）
+	// UserName is the username (login)
 	UserName UserContext = "user_name"
-	// Role 用户角色列表
+	// Role is the user's roles
 	Role UserContext = "role"
-	// IP 客户端 IP 地址
+	// IP is the client IP address
 	IP UserContext = "ip"
 )

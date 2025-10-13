@@ -1,3 +1,4 @@
+// Package otel provides OpenTelemetry initialization and utilities.
 package otel
 
 import (
@@ -26,34 +27,34 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 
-// Options 控制初始化行为
+// Options controls initialization behavior.
 type Options struct {
-	Environment  string            // 可选：dev/staging/prod
-	Endpoint     string            // 可选：例如 "otelcol.observability.svc:4318"（留空则走环境变量）
-	Insecure     bool              // 集群内常用
-	Headers      map[string]string // 需要鉴权时可传 {"Authorization":"Bearer xxx"}
-	MetricPeriod time.Duration     // metrics push 周期，默认 10s
+	Environment  string            // optional: dev/staging/prod
+	Endpoint     string            // optional: e.g. "otelcol.observability.svc:4318" (empty -> env)
+	Insecure     bool              // commonly used inside cluster
+	Headers      map[string]string // headers for auth, e.g., {"Authorization":"Bearer xxx"}
+	MetricPeriod time.Duration     // metrics push interval, default 10s
 }
 
-// Setup 初始化 OTEL：Trace + Metric + Log + Propagator
-// 返回 shutdown 用于优雅退出
+// Setup initializes OTEL: Trace + Metric + Log + Propagator.
+// Returns shutdown function for graceful termination.
 func Setup(ctx context.Context, opt Options) (shutdown func(context.Context) error, err error) {
 	if opt.MetricPeriod <= 0 {
 		opt.MetricPeriod = 10 * time.Second
 	}
 
 	// ---------- Propagator ----------
-	// W3C 上下文传播（HTTP/RabbitMQ 都用它）
+	// W3C context propagation (HTTP/RabbitMQ etc.)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		propagation.TraceContext{},
 		propagation.Baggage{},
 	))
 
-	// ---------- Resource（统一） ----------
+	// ---------- Resource (common) ----------
 	res, err := resource.New(
 		ctx,
-		resource.WithFromEnv(),      // 允许通过 OTEL_SERVICE_NAME OTEL_RESOURCE_ATTRIBUTES 注入
-		resource.WithTelemetrySDK(), // sdk 信息
+		resource.WithFromEnv(),      // allow injection via OTEL_SERVICE_NAME OTEL_RESOURCE_ATTRIBUTES
+		resource.WithTelemetrySDK(), // sdk info
 		resource.WithAttributes(
 			attribute.String("environment", opt.Environment),
 		),
@@ -103,10 +104,10 @@ func Setup(ctx context.Context, opt Options) (shutdown func(context.Context) err
 	)
 	otel.SetMeterProvider(mp)
 
-	// ---------- 汇总 shutdown ----------
+	// ---------- shutdown aggregation ----------
 	shutdown = func(c context.Context) error {
 		var e error
-		// 顺序建议：trace/metric/log 都可以，重要的是都要调用
+		// order can be trace/metric/log; important to call all
 		e = errors.Join(e, tp.Shutdown(c))
 		e = errors.Join(e, mp.Shutdown(c))
 		e = errors.Join(e, lp.Shutdown(c))
@@ -166,6 +167,7 @@ func newLogExporter(ctx context.Context, opt Options) (*otlploghttp.Exporter, er
 	return otlploghttp.New(ctx, opts...)
 }
 
+// GetServiceName gets the service name inferred from env vars and build info.
 func GetServiceName() string {
 	if serviceName := os.Getenv("OTEL_SERVICE_NAME"); serviceName != "" {
 		return serviceName

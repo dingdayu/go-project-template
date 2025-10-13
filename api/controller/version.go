@@ -1,3 +1,4 @@
+// Package controller defines HTTP controllers.
 package controller
 
 import (
@@ -8,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Version
-// @Summary 获取接口版本
+// Version returns current build version and time.
+// @Summary Get API version
 // @Produce  json
 // @SuccessResponse 200 {object} api.Response
 // @Failure 500 {object} api.Response

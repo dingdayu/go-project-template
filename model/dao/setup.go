@@ -1,4 +1,6 @@
-// Package dao 所有定义的模型操作方法，均在此包里。
+// Package dao contains all data access logic for models.
+//
+//nolint:unused
 package dao
 
 import (
@@ -28,6 +30,7 @@ var (
 	tracer = otel.Tracer("github.com/dingdayu/go-project-template/model/dao")
 )
 
+// Setup setup db connection.
 func Setup() {
 	var err error
 	once.Do(func() {
@@ -77,11 +80,11 @@ func Setup() {
 		db, err = gorm.Open(dialector, dbCfg)
 		if err == nil {
 			var databaseName string
-			// 通过 session 方法设置 logger 级别为 Silent，避免打印 SQL 语句
+			// use a special session to avoid printing SQL statements
 			pkgOtel.NeverLogSessionWithGORM(db).Raw("SELECT current_database()").Scan(&databaseName)
 			fmt.Printf("\033[1;30;42m[info]\033[0m db [master:%s] connect success\n", databaseName)
 
-			// 启用 gorm otel 追踪
+			// enable gorm OpenTelemetry tracing
 			if err := db.Use(tracing.NewPlugin()); err != nil {
 				log.Fatal(err)
 			}
@@ -92,10 +95,12 @@ func Setup() {
 	})
 }
 
+// GetDB gorm default DB connection.
 func GetDB() *gorm.DB {
 	return db
 }
 
+// GetContextDB returns a gorm DB with the provided context.
 func GetContextDB(ctx context.Context) *gorm.DB {
 	return db.WithContext(ctx)
 }

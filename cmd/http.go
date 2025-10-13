@@ -1,4 +1,7 @@
+// Package cmd wires Cobra commands for the application.
 package cmd
+
+//revive:disable:unused-parameter
 
 import (
 	"github.com/dingdayu/go-project-template/api"

@@ -1,3 +1,4 @@
+// Package api provides entry points to start HTTP, Cron, and Async services.
 package api
 
 import (
@@ -18,6 +19,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Run starts the HTTP server and gracefully shuts down.
 func Run(ctx context.Context) {
 	// ✅ 一行搞定信号监听 + context 取消
 	ctx, stop := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -53,7 +55,7 @@ func Run(ctx context.Context) {
 
 	fmt.Printf("\033[1;30;42m[info]\033[0m start http server listening %s\n", addr)
 
-	// 启动 HTTP Server（非阻塞）
+	// start HTTP server (non-blocking)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("\033[1;30;41m[error]\033[0m HTTP Server failed: %v", err)
@@ -61,18 +63,17 @@ func Run(ctx context.Context) {
 		}
 	}()
 
-	// ✅ 等待信号（ctx 被取消）
+	// ✅ wait for signal (ctx canceled)
 	<-ctx.Done()
 	fmt.Println("\n\033[1;30;42m[info]\033[0m Shutdown Server...")
 
-	// ✅ 在收到信号后，创建带超时的 context 用于 Shutdown
+	// ✅ create a timeout context for graceful shutdown
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel() // 确保 cancel 被调用
+	defer cancel() // ensure cancel is called
 
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		fmt.Printf("\033[1;30;41m[error]\033[0m Server forced to shutdown: %v\n", err)
-		os.Exit(1) // 可选：强制退出
-	} else {
-		fmt.Println("\033[1;30;42m[info]\033[0m HTTP Server exited gracefully")
+		os.Exit(1) // optional: force exit
 	}
+	fmt.Println("\033[1;30;42m[info]\033[0m HTTP Server exited gracefully")
 }

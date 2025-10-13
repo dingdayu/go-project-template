@@ -1,3 +1,4 @@
+// Package middleware defines gin middlewares.
 package middleware
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Authorization returns a JWT-based authentication middleware.
 func Authorization() gin.HandlerFunc {
 	secret := viper.GetString("jwt.secret")
 	if secret == "" {
@@ -30,7 +32,7 @@ func Authorization() gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, entity.ErrAuthForbidden)
 			return
 		}
-		// 检查 jwt token 是否有效
+		// validate JWT token
 		user, err := jwt.ParseJwt(token[1], secret)
 		if err != nil {
 			logger.Logger().WarnContext(c.Request.Context(), "JWT parsing failed",
@@ -41,7 +43,7 @@ func Authorization() gin.HandlerFunc {
 			return
 		}
 
-		// 创建增强的 context
+		// build enhanced request context
 		ctx := c.Request.Context()
 		ctx = context.WithValue(ctx, contextkey.Email, user.Email)
 		ctx = context.WithValue(ctx, contextkey.RealName, user.RealName)
@@ -49,7 +51,7 @@ func Authorization() gin.HandlerFunc {
 		ctx = context.WithValue(ctx, contextkey.UserName, user.Username)
 		ctx = context.WithValue(ctx, contextkey.IP, c.ClientIP())
 
-		// 更新请求上下文
+		// attach updated context to request
 		c.Request = c.Request.WithContext(ctx)
 
 		c.Next()

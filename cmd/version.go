@@ -1,4 +1,7 @@
+// Package cmd wires Cobra commands for the application.
 package cmd
+
+//revive:disable:unused-parameter
 
 import (
 	"fmt"
@@ -15,7 +18,6 @@ var versionCmd = &cobra.Command{
 		return nil
 	},
 	PreRun: func(cmd *cobra.Command, args []string) {
-
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Printf("Version: %s\n", entity.BuildVersion)

@@ -1,3 +1,4 @@
+// Package tracker contains registration and implementations of async tasks.
 package tracker
 
 import (
@@ -10,17 +11,20 @@ import (
 
 func init() {
 	// Register your async tasks here.
-	async.Register(&ExampleTimerAsync{})
+	if err := async.Register(&ExampleTimerAsync{}); err != nil {
+		fmt.Printf("\u001B[1;30;41m[error]\u001B[0m register ExampleTimerAsync failed: %v\n", err)
+	}
 }
 
+// ExampleTimerAsync is a sample scheduled async task.
 type ExampleTimerAsync struct {
 	ticker *time.Ticker
 }
 
-// OnPreRun Before run, panic panic causes registration failure
+// OnPreRun runs before Handle; a panic here causes registration failure.
 func (a *ExampleTimerAsync) OnPreRun() {
 	a.ticker = time.NewTicker(1 * time.Minute)
-	fmt.Printf("\u001B[1;30;42m[info]\u001B[0m ExampleTimerAsync 注册成功，开始运行！\n")
+	fmt.Printf("\u001B[1;30;42m[info]\u001B[0m ExampleTimerAsync registered and running!\n")
 }
 
 // Name async name
@@ -44,8 +48,8 @@ func (a *ExampleTimerAsync) Handle(ctx async.Context) {
 	}
 }
 
-// OnShutdown on async shutdown
-func (a *ExampleTimerAsync) OnShutdown(ctx context.Context) {
+// OnShutdown is called when async is shutting down.
+func (a *ExampleTimerAsync) OnShutdown(_ context.Context) {
 	a.ticker.Stop()
-	fmt.Printf("\u001B[1;30;42m[info]\u001B[0m ExampleTimerAsync 准备退出！\n")
+	fmt.Printf("\u001B[1;30;42m[info]\u001B[0m ExampleTimerAsync preparing to exit!\n")
 }

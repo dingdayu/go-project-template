@@ -1,3 +1,4 @@
+// Package config loads application configuration and supports hot reload.
 package config
 
 import (
@@ -10,19 +11,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-// changeEventHandle 配置变更处理器
+// changeEventHandle contains registered config change handlers.
 var (
 	changeEventHandle []func(e fsnotify.Event)
 	eventLock         sync.Mutex
 	once              sync.Once
 )
 
-// CfgFile 配置文件路径,允许在初始化前,由外部包赋值
+// CfgFile is the config file path, can be set before Init.
 var CfgFile string
 
+// Init initializes configuration from file and environment variables.
 func Init() {
 	once.Do(func() {
-		// 设置配置文件目录和文件名
+		// set config file name and search paths
 		viper.SetConfigName("config")                 // name of config file (without extension)
 		viper.SetConfigType("yaml")                   // REQUIRED if the config file does not have the extension in the name
 		viper.AddConfigPath("/etc/singbox-adapter/")  // path to look for the config file in
@@ -33,15 +35,25 @@ func Init() {
 			viper.SetConfigFile(CfgFile)
 		}
 
-		// read in environment variables that match
+		// read in matching environment variables
 		viper.SetEnvPrefix("GO")
 		viper.AutomaticEnv()
 
-		viper.BindEnv("app.service_name", "OTEL_SERVICE_NAME")
-		viper.BindEnv("app.port", "HTTP_PORT")
-		viper.BindEnv("app.environment", "ENVIRONMENT")
-		viper.BindEnv("jwt.secret", "JWT_SECRET")
-		viper.BindEnv("db", "DB")
+		if err := viper.BindEnv("app.service_name", "OTEL_SERVICE_NAME"); err != nil {
+			fmt.Printf("\u001B[1;30;41m[error]\u001B[0m bind env app.service_name failed: %v\n", err)
+		}
+		if err := viper.BindEnv("app.port", "HTTP_PORT"); err != nil {
+			fmt.Printf("\u001B[1;30;41m[error]\u001B[0m bind env app.port failed: %v\n", err)
+		}
+		if err := viper.BindEnv("app.environment", "ENVIRONMENT"); err != nil {
+			fmt.Printf("\u001B[1;30;41m[error]\u001B[0m bind env app.environment failed: %v\n", err)
+		}
+		if err := viper.BindEnv("jwt.secret", "JWT_SECRET"); err != nil {
+			fmt.Printf("\u001B[1;30;41m[error]\u001B[0m bind env jwt.secret failed: %v\n", err)
+		}
+		if err := viper.BindEnv("db", "DB"); err != nil {
+			fmt.Printf("\u001B[1;30;41m[error]\u001B[0m bind env db failed: %v\n", err)
+		}
 
 		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 		if err := viper.ReadInConfig(); err == nil {
@@ -51,16 +63,15 @@ func Init() {
 			os.Exit(1)
 		}
 
-		// // 监听配置文件变更
+		// watch and handle config changes
 		// viper.WatchConfig()
-		// // 调用 config 变更注册
 		// viper.OnConfigChange(onConfigChange)
 
 		fmt.Printf("\033[1;30;42m[info]\033[0m config init %s\n", viper.ConfigFileUsed())
 	})
 }
 
-// RegisterChangeEvent 注册配置变更事件
+// RegisterChangeEvent registers a config change event callback.
 func RegisterChangeEvent(f func(e fsnotify.Event)) {
 	eventLock.Lock()
 	defer eventLock.Unlock()
@@ -68,7 +79,7 @@ func RegisterChangeEvent(f func(e fsnotify.Event)) {
 	changeEventHandle = append(changeEventHandle, f)
 }
 
-// onConfigChange 循环执行事件调用
+// onConfigChange runs registered handlers for config changes.
 //
 //nolint:unused
 func onConfigChange(e fsnotify.Event) {

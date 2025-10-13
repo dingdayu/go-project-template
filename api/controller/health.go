@@ -1,3 +1,4 @@
+// Package controller defines HTTP controllers.
 package controller
 
 import (
@@ -6,11 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Hello 首页，用于健康检查
+// Hello is the home/health-check endpoint.
 func Hello(c *gin.Context) {
 	c.String(http.StatusOK, "hello, word.")
 }
 
+// Ping responds with pong for health checking.
 func Ping(c *gin.Context) {
 	c.String(http.StatusOK, "pong")
 }

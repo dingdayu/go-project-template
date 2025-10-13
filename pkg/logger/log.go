@@ -1,3 +1,4 @@
+// Package logger provides unified logging components.
 package logger
 
 import (
@@ -21,7 +22,7 @@ var (
 	once   sync.Once
 )
 
-// createDirIfNotExist 检查并创建目录
+// createDirIfNotExist checks and creates the directory.
 func createDirIfNotExist(filePath string) error {
 	dir := filepath.Dir(filePath)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -30,6 +31,7 @@ func createDirIfNotExist(filePath string) error {
 	return nil
 }
 
+// Init initializes the global logger.
 func Init() {
 	fmt.Printf("\033[1;30;42m[info]\033[0m init log %s\n", viper.GetString("log.path"))
 	once.Do(func() {
@@ -64,7 +66,7 @@ func Init() {
 	fmt.Printf("\033[1;30;42m[info]\033[0m init log done \n")
 }
 
-// Logger returns the global logger instance
+// Logger returns the global logger.
 func Logger() *slog.Logger {
 	if logger == nil {
 		log.Fatal("Logger is not initialized. Call InitLogger() first.")
@@ -72,6 +74,7 @@ func Logger() *slog.Logger {
 	return logger
 }
 
+// WithNamespace returns a namespaced child logger.
 func WithNamespace(namespace string) *slog.Logger {
 	return Logger().With("namespace", namespace)
 }

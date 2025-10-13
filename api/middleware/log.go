@@ -1,3 +1,4 @@
+// Package middleware defines gin middlewares.
 package middleware
 
 import (
@@ -13,43 +14,44 @@ import (
 )
 
 const (
+	// RequestLogNamed is the logger namespace for HTTP requests.
 	RequestLogNamed    = "http_request"
-	maxBodyLogSize     = 1024 // 设置请求体日志大小的最大阈值为 1024 bytes (1KB)
+	maxBodyLogSize     = 1024 // max request body size to log (1KB)
 	maxResponseLogSize = 1024
 )
 
-// 一下响应文件不记录 response 到日志
+// Some response content types should not be logged as body
 var downloadableContentTypes = []string{
-	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Excel 文件
-	"application/pdf",          // PDF 文件
-	"application/octet-stream", // 通用二进制格式
-	"image/jpeg",               // JPEG 图片
-	"image/png",                // PNG 图片
-	"image/gif",                // GIF 图片
-	"image/bmp",                // BMP 图片
-	"image/webp",               // WEBP 图片
-	"text/csv",                 // CSV 文件
-	"text/html",                // HTML 文件
-	"text/javascript",          // JavaScript 文件
-	"application/javascript",   // JavaScript 文件
-	"text/css",                 // CSS 文件
-	"font/ttf",                 // TrueType 字体
-	"image/svg+xml",            // SVG 文件
-	"application/zip",          // ZIP 文件
+	"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // Excel file
+	"application/pdf",          // PDF file
+	"application/octet-stream", // generic binary
+	"image/jpeg",               // JPEG image
+	"image/png",                // PNG image
+	"image/gif",                // GIF image
+	"image/bmp",                // BMP image
+	"image/webp",               // WEBP image
+	"text/csv",                 // CSV file
+	"text/html",                // HTML file
+	"text/javascript",          // JavaScript file
+	"application/javascript",   // JavaScript file
+	"text/css",                 // CSS file
+	"font/ttf",                 // TrueType font
+	"image/svg+xml",            // SVG file
+	"application/zip",          // ZIP file
 	"application/x-rar-compressed",
 	"application/x-7z-compressed",
 	"application/x-bzip2",
 	"application/x-bzip",
 	"application/x-gzip",
-	// 添加更多文件类型
+	// add more file types here
 }
 
-// WriterLog 处理跨域请求,支持options访问
+// WriterLog logs request/response with masking of sensitive fields.
 func WriterLog(logger *slog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		// 准备相应日志
+		// capture request body for logging
 		bodyBuf := new(bytes.Buffer)
 		_, _ = io.Copy(bodyBuf, c.Request.Body)
 		body := bodyBuf.Bytes()
@@ -70,11 +72,11 @@ func WriterLog(logger *slog.Logger) gin.HandlerFunc {
 			slog.Int64("latency", latency.Milliseconds()),
 			slog.String("user_agent", c.Request.UserAgent()),
 		}
-		// 当 query 不为空时记录
+		// log query string when present
 		if len(c.Request.URL.RawQuery) > 0 {
 			fs = append(fs, slog.String("query", c.Request.URL.RawQuery))
 		}
-		// 检查响应类型黑名单
+		// avoid logging non-textual or large responses
 		if !isFileResponse(contentType) && blw.body.Len() <= maxResponseLogSize {
 			fs = append(fs, slog.String("response", string(mask(blw.body.Bytes()))))
 		}
@@ -83,14 +85,14 @@ func WriterLog(logger *slog.Logger) gin.HandlerFunc {
 		if len(c.Errors) > 0 {
 			fs = append(fs, slog.String("errors", c.Errors.String()))
 		}
-		// 非GET请求记录请求体，且只记录小于等于1KB的请求体
+		// log request body for non-GET when size <= 1KB
 		if c.Request.Method != http.MethodGet && len(body) <= maxBodyLogSize {
 			fs = append(fs, slog.Any("body", mask(body)))
 		}
-		// Writer X-Request-Id to log
-		xRequestId := c.Request.Header.Get("X-Request-Id")
-		if len(xRequestId) > 0 {
-			fs = append(fs, slog.String("request_id", xRequestId))
+		// write X-Request-ID to log
+		xRequestID := c.Request.Header.Get("X-Request-Id")
+		if len(xRequestID) > 0 {
+			fs = append(fs, slog.String("request_id", xRequestID))
 		}
 
 		logger.InfoContext(c.Request.Context(), c.Request.RequestURI, fs...)
@@ -100,16 +102,16 @@ func WriterLog(logger *slog.Logger) gin.HandlerFunc {
 var maskDictionary = map[string]bool{"password": true}
 
 func mask(body []byte) []byte {
-	// 将 JSON 转换为 map
+	// unmarshal JSON to map
 	var data map[string]interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
 		return body
 	}
 
-	// 过滤敏感信息
+	// mask sensitive fields
 	filterSensitiveData(data, maskDictionary)
 
-	// 将过滤后的数据转换回 JSON 字符串
+	// marshal back to JSON
 	filteredJSON, err := json.Marshal(data)
 	if err != nil {
 		return body
@@ -117,14 +119,14 @@ func mask(body []byte) []byte {
 	return filteredJSON
 }
 
-// 递归过滤敏感信息
+// filterSensitiveData recursively masks keys found in maskDictionary.
 func filterSensitiveData(data map[string]interface{}, maskDictionary map[string]bool) {
 	for key, value := range data {
-		// 检查是否为敏感字段
+		// mask when key is sensitive
 		if maskDictionary[key] {
 			data[key] = "***"
 		} else {
-			// 递归处理嵌套的 map
+			// recursively mask nested structures
 			switch v := value.(type) {
 			case map[string]interface{}:
 				filterSensitiveData(v, maskDictionary)
@@ -139,7 +141,7 @@ func filterSensitiveData(data map[string]interface{}, maskDictionary map[string]
 	}
 }
 
-// 检查是否为文件响应
+// isFileResponse reports whether contentType matches downloadable content types.
 func isFileResponse(contentType string) bool {
 	for _, fileType := range downloadableContentTypes {
 		if strings.Contains(contentType, fileType) {
