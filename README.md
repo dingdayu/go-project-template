@@ -6,7 +6,7 @@ An opinionated, ready-to-use Go web project template using Gin. It includes:
 
 - Gin router and middleware (logging, recovery, rate limiting, auth)
 - Full observable scheme inheritance (opentelemetry: log, trace, metric)
-- Asynchronous task management
+- Asynchronous task management (async or cron)
 - CI and linting examples
 - Dockerfile and image build targets
 - A script/workflow to rename the module when you create a repo from this template
