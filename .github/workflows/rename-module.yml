@@ -6,10 +6,6 @@ on:
       module_path:
         description: "Target module path (default: github.com/<owner>/<repo>)"
         required: false
-  push:
-    branches: [ main ]
-    paths:
-      - "go.mod"
 
 jobs:
   rename:
